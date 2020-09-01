@@ -62,6 +62,10 @@ def readSerialData():
             if(len(valueList)) == 6:
                 valInt1 = int(valueList[0])
                 valInt2 = int(valueList[1])
+                global hr
+                global bp
+                global spo2
+                global ptt
                 hr = valueList[2]
                 bp = valueList[3]
                 spo2 = valueList[4]

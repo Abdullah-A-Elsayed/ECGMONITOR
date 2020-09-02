@@ -24,23 +24,24 @@ s2 = [0 for x in range (0 , windowWidth+1)]
 
 ### defining window and plots ###
 win = pg.GraphicsWindow(title="ECG") # creates a window
+win.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+win.showMaximized()
 p = win.addPlot()  # creates empty space for the plot in the window
 curve = p.plot(pen=pg.mkPen('#69E73D', width=2))                        # create an empty "plot" (a curve to plot)
 curve2 = p.plot(pen=pg.mkPen('#70EEF2', width=2))
 p.hideAxis('bottom')
 p.hideAxis('left')
-
 titleHtml = '''
     <br/><br/>
-        <div>
+        <div style="font-size:18px; border: 1px solid white">
             <div>
-                <span style='color:#70EEF2'><b><span style="color:red">🩸</span> Blood Pressure:</b></span> <span style="color:white"><b>{}</b></span>
+                <span style='color:#70EEF2'><b><span style="color:red; font-size:22px">🩸</span> Blood Pressure:</b></span> <span style="color:white"><b>{}</b></span>
                 <br/>
-                <span style='color:red'><b><span style="color:red">❤</span> Heart R️ate:</b></span> <span style="color:white"><b>{}</b></span>
-                <span style='color:#69E73D'><b><span style="color:red"> 💉</span> SPO2:</b></span> <span style="color:white"><b>{}</b></span>
+                <span style='color:red'><b><span style="color:red; font-size:22px">❤</span> Heart R️ate:</b></span> <span style="color:white"><b>{}</b></span>
+                <span style='color:#69E73D'><b><span style="color:red; font-size:22px"> 💉</span> SPO2:</b></span> <span style="color:white"><b>{}</b></span>
             </div>
             <div>
-                <span style='color:#F7F739'><b><span style="color:red">🕓</span> Pulse Transient Time:</b></span> <span style="color:white"><b>{}</b></span>
+                <span style='color:#F7F739'><b><span style="color:red; font-size:22px">🕓</span> Pulse Transient Time:</b></span> <span style="color:white"><b>{}</b></span>
             </div>
         </div>
     '''

@@ -4,7 +4,7 @@ import threading
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import time
-windowWidth = 150
+windowWidth = 300
 s1 = []
 s2 = []
 hr = '' # heart rate
@@ -12,7 +12,8 @@ bp = '' # blood pressure
 spo2 = '' 
 ptt = ''
 ptr = - windowWidth
-serialArduino = serial.Serial('COM10', 9600)
+serialArduinoA = serial.Serial('COM29', 9600)
+serialArduinoB = serial.Serial('COM17', 9600)
 ### START QtApp #####
 app = QtGui.QApplication([])            # you MUST do this once (initialize things)
 ####################
@@ -27,8 +28,8 @@ win = pg.GraphicsWindow(title="ECG") # creates a window
 win.setWindowFlag(QtCore.Qt.FramelessWindowHint)
 win.showMaximized()
 p = win.addPlot()  # creates empty space for the plot in the window
-curve = p.plot(pen=pg.mkPen('#69E73D', width=2))                        # create an empty "plot" (a curve to plot)
-curve2 = p.plot(pen=pg.mkPen('#70EEF2', width=2))
+curve = p.plot(pen=pg.mkPen('#69E73D', width=1))                        # create an empty "plot" (a curve to plot)
+curve2 = p.plot(pen=pg.mkPen('#70EEF2', width=1))
 p.hideAxis('bottom')
 p.hideAxis('left')
 titleHtml = '''
@@ -55,53 +56,44 @@ def plotValues():
     curve.setPos(ptr,0)                   # set x position in the graph to 0
     curve2.setPos(ptr,0)                   # set x position in the graph to 0
     QtGui.QApplication.processEvents()    # you MUST process the plot now
-    
-    # axs.set_title("HR️: "+hr+"       BP: "+bp+"       SPO2: "+spo2+"       PTT: "+ptt, {
-    #     'color': '#ffd700',
-    #     'fontsize': 17,
-    #     'fontweight': 'bold',
-
-    # })
     timeafter = time.time()
     print("*** elapsed seconds = " + str(timeafter - timenow))
 
 while True:
-    while (serialArduino.inWaiting()==0):
-        # pass
-        print("waiting ...")
-    
-    valueRead = serialArduino.readline()
-    #check consumed time
-    # timenow = timeafter
+    if (serialArduinoA.inWaiting()==0 ):
+        print("No data from A")
+        print("A isOpen= ", str(serialArduinoA.isOpen()))
+    if (serialArduinoB.inWaiting()== 0):
+        print("No data from B")
+        print("B isOpen= ", str(serialArduinoB.isOpen()))
+    valueReadA = serialArduinoA.readline() if serialArduinoA.inWaiting() != 0 else ''.encode('utf-8')
+    valueReadB = serialArduinoB.readline() if serialArduinoB.inWaiting() != 0 else ''.encode('utf-8')
     #check if valid value can be casted
     try:
-        valueRead = valueRead.decode('utf-8')
-        valueList = valueRead.split(',')
-        print(valueRead)
-        print(valueList)
-        if(len(valueList)) == 6:
-            valInt1 = int(valueList[0])
-            valInt2 = int(valueList[1])
-            hr = valueList[2]
-            bp = valueList[3]
-            spo2 = valueList[4]
-            ptt = valueList[5].replace('\r\n', '')    # necessary in last val in the valueList
-            # print (bp)
-            # print (ptt+"****")
+        print ("starting ...")
+        valueReadA = valueReadA.decode('utf-8')
+        valueListA = valueReadA.split(',')
+        print(valueReadA)
+        print(valueListA)
+        valueReadB = valueReadB.decode('utf-8')
+        valueListB = valueReadB.split(',')
+        print(valueReadB)
+        print(valueListB)
+        if(len(valueListA)) == 2:
+            valInt1 = int(valueListA[0])
+            valInt2 = int(valueListA[1].replace('\r\n', '') )
             if valInt1 <= 1500 and valInt2 <= 1500:
                 if valInt1 >= 0 and valInt2 >= 0:
                     s1.append(valInt1)
                     s2.append(valInt2)
                     s1.pop(0)
                     s2.pop(0)
-                    plotValues()
-                else:
-                    print ("Invalid! negative number")
-            else:
-                print ("Invalid! too large")
-        else:
-            print ("Corrupted Serial")
-
+        if(len(valueListB)) == 4:    
+            hr = valueListB[0]
+            bp = valueListB[1]
+            spo2 = valueListB[2]
+            ptt = valueListB[3].replace('\r\n', '')    # necessary in last val in the valueList
+        plotValues()
     except ValueError:
         print ("Invalid! cannot cast")
 
